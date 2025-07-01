@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador readln en Pascal</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-panel: #2d2d2d;
+            --bg-box: #3a3a3a;
+            --text-light: #e0e0e0;
+            --text-green: #6ecf68;
+            --text-red: #f75e5e;
+            --text-gray: #aaa;
+            --border-light: #444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: var(--text-green);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--bg-dark);
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .author {
+            font-size: 0.8em;
+            color: var(--text-gray);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 15px;
+            overflow: hidden;
+        }
+        
+        .top-container {
+            display: flex;
+            flex: 2;
+            gap: 15px;
+            overflow: hidden;
+        }
+        
+        .code-container {
+            flex: 1;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 15px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: var(--text-green);
+            font-size: 1.1em;
+        }
+        
+        .add-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: var(--bg-box);
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-integer {
+            background-color: #3a6ea5;
+        }
+        
+        .btn-real {
+            background-color: #6a3ea5;
+        }
+        
+        .btn-char {
+            background-color: #3ea56a;
+        }
+        
+        .btn-block {
+            background-color: #5e5ea5;
+            margin-top: 10px;
+            width: 100%;
+            padding: 8px;
+        }
+        
+        .code-area {
+            flex: 1;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            padding: 15px;
+            overflow: auto;
+            font-family: monospace;
+            white-space: pre;
+            font-size: 1.1em;
+            color: #f8f8f8;
+            line-height: 1.4;
+        }
+        
+        .visualization-container {
+            flex: 1;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .vis-header {
+            font-weight: bold;
+            color: var(--text-green);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .blocks-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .block {
+            background-color: var(--bg-box);
+            border-radius: 5px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-light);
+        }
+        
+        .block-title {
+            font-weight: bold;
+            color: var(--text-green);
+        }
+        
+        .block-vars {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .var-box {
+            width: 130px;
+            height: 100px;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        
+        .var-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        
+        .var-name {
+            font-weight: bold;
+            color: var(--text-green);
+            font-size: 1.1em;
+        }
+        
+        .var-type {
+            font-size: 0.85em;
+            color: var(--text-gray);
+            text-transform: uppercase;
+        }
+        
+        .var-value {
+            width: 100%;
+            height: 40px;
+            background-color: var(--bg-dark);
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+        
+        .value-correct {
+            color: var(--text-green);
+            text-shadow: 0 0 5px rgba(110, 207, 104, 0.5);
+        }
+        
+        .value-error {
+            color: var(--text-red);
+            text-shadow: 0 0 5px rgba(247, 94, 94, 0.5);
+        }
+        
+        .value-empty {
+            color: #777;
+            font-style: italic;
+        }
+        
+        .bottom-container {
+            flex: 1;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .input-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex: 1;
+        }
+        
+        .input-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .run-container {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-light);
+            border-radius: 3px;
+            color: var(--text-light);
+            font-family: monospace;
+            font-size: 1.1em;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+            height: 150px;
+            resize: none;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--text-green);
+        }
+        
+        .btn-run {
+            padding: 12px 25px;
+            background: linear-gradient(to bottom, var(--text-green), #5ebf58);
+            color: var(--bg-dark);
+            font-weight: bold;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .btn-run:hover {
+            background: linear-gradient(to bottom, #7edf78, var(--text-green));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        
+        .btn-run:active {
+            transform: translateY(0);
+        }
+        
+        .var-counter {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-gray);
+            text-align: center;
+        }
+        
+        .error-message {
+            color: var(--text-red);
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+            text-align: center;
+            padding: 5px;
+            background-color: rgba(247, 94, 94, 0.1);
+            border-radius: 3px;
+        }
+        
+        .placeholder {
+            color: #777;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .block-info {
+            font-size: 0.9em;
+            color: var(--text-gray);
+            margin-top: 5px;
+        }
+        
+        .block-placeholder {
+            color: #777;
+            font-style: italic;
+            text-align: center;
+            padding: 10px;
+        }
+        
+        .instructions {
+            background-color: var(--bg-box);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-gray);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📘 Simulador <code>readln</code> en Pascal</h1>
+        <div class="logo-container">
+            <div class="logo">O</div>
+            <div class="author">Oriol Borrás-Gené (URJC)</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="top-container">
+            <!-- Columna de código -->
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title">Código Pascal</div>
+                    <div class="add-buttons">
+                        <button class="btn btn-integer" id="add-int">Integer</button>
+                        <button class="btn btn-real" id="add-real">Real</button>
+                        <button class="btn btn-char" id="add-char">Char</button>
+                    </div>
+                </div>
+                <div class="code-area" id="pascal-code">
+PROGRAM ejemploReadln;
+VAR
+  // Añade variables usando los botones superiores
+BEGIN
+  // Añade bloques readln con el botón inferior
+END.
+                </div>
+                <button class="btn btn-block" id="add-block">➕ Añadir bloque readln</button>
+                <div class="error-message" id="error-message"></div>
+ 
+            </div>
+            
+            <!-- Columna de visualización -->
+            <div class="visualization-container">
+                <div class="vis-header">Visualización de bloques readln</div>
+                <div class="blocks-container" id="blocks-container">
+                    <div class="placeholder">Añade bloques y variables para ver su visualización</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Zona inferior -->
+        <div class="bottom-container">
+            <div class="input-container">
+                <div class="input-header">
+                    <div class="code-title">Entrada de datos (cada línea = 1 bloque readln)</div>
+                    <div class="run-container">
+                        <button class="btn-run" id="run-button">Ejecutar Simulación</button>
+                    </div>
+                </div>
+                <textarea class="input-field" id="input-data" placeholder="Introduce los datos de entrada (ej: 12 3.5&#10;X)"></textarea>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Variables globales
+        let blocks = [
+            { id: 0, variables: [] } // Bloque inicial vacío
+        ];
+        let currentBlockIndex = 0;
+        let varCounter = 0; // Contador para nombres de variables (a, b, c...)
+        
+        // Referencias a elementos DOM
+        const pascalCodeElement = document.getElementById('pascal-code');
+        const blocksContainerElement = document.getElementById('blocks-container');
+        const inputDataElement = document.getElementById('input-data');
+        const runButton = document.getElementById('run-button');
+        const addIntButton = document.getElementById('add-int');
+        const addRealButton = document.getElementById('add-real');
+        const addCharButton = document.getElementById('add-char');
+        const addBlockButton = document.getElementById('add-block');
+        const errorMessageElement = document.getElementById('error-message');
+        
+        // Función para mostrar mensaje de error
+        function showError(message) {
+            errorMessageElement.textContent = message;
+            errorMessageElement.style.display = 'block';
+            setTimeout(() => {
+                errorMessageElement.style.display = 'none';
+            }, 5000);
+        }
+        
+        // Función para añadir una variable al bloque actual
+        function addVariable(type) {
+            if (blocks[currentBlockIndex].variables.length >= 10) {
+                showError('Se ha alcanzado el máximo de 10 variables por bloque');
+                return;
+            }
+            
+            const name = String.fromCharCode(97 + varCounter); // 97 = 'a' en ASCII
+            blocks[currentBlockIndex].variables.push({ name, type });
+            varCounter++;
+            
+            updatePascalCode();
+            updateBlocksDisplay();
+        }
+        
+        // Función para añadir un nuevo bloque readln
+        function addReadlnBlock() {
+            if (blocks.length >= 5) {
+                showError('Se ha alcanzado el máximo de 5 bloques');
+                return;
+            }
+            
+            const newBlock = {
+                id: blocks.length,
+                variables: []
+            };
+            
+            blocks.push(newBlock);
+            currentBlockIndex = blocks.length - 1;
+            
+            updatePascalCode();
+            updateBlocksDisplay();
+        }
+        
+        // Función para actualizar el código Pascal
+        function updatePascalCode() {
+            // Generar sección de variables
+            let varSection = 'VAR\n';
+            let allVariables = [];
+            
+            blocks.forEach(block => {
+                block.variables.forEach(variable => {
+                    if (!allVariables.some(v => v.name === variable.name)) {
+                        allVariables.push(variable);
+                        varSection += `  ${variable.name}: ${variable.type};\n`;
+                    }
+                });
+            });
+            
+            if (allVariables.length === 0) {
+                varSection += '  // Añade variables usando los botones superiores\n';
+            }
+            
+            // Generar sección de bloques readln
+            let readlnSection = '';
+            
+            blocks.forEach((block, index) => {
+                if (block.variables.length > 0) {
+                    readlnSection += `  readln(${block.variables.map(v => v.name).join(', ')});\n`;
+                } else {
+                    readlnSection += `  // Bloque readln ${index + 1} - añade variables\n`;
+                }
+            });
+            
+            if (readlnSection === '') {
+                readlnSection = '  // Añade bloques readln con el botón inferior\n';
+            }
+            
+            const code = `PROGRAM ejemploReadln;\n${varSection}BEGIN\n${readlnSection}END.`;
+            pascalCodeElement.textContent = code;
+        }
+        
+        // Función para actualizar la visualización de bloques
+        function updateBlocksDisplay() {
+            blocksContainerElement.innerHTML = '';
+            
+            if (blocks.length === 0 || blocks.every(block => block.variables.length === 0)) {
+                blocksContainerElement.innerHTML = '<div class="placeholder">Añade bloques y variables para ver su visualización</div>';
+                return;
+            }
+            
+            blocks.forEach(block => {
+                const blockElement = document.createElement('div');
+                blockElement.className = 'block';
+                
+                const blockHeader = document.createElement('div');
+                blockHeader.className = 'block-header';
+                
+                const blockTitle = document.createElement('div');
+                blockTitle.className = 'block-title';
+                blockTitle.textContent = `readln (bloque ${block.id + 1})`;
+                
+                const blockInfo = document.createElement('div');
+                blockInfo.className = 'block-info';
+                blockInfo.textContent = `${block.variables.length} variable${block.variables.length !== 1 ? 's' : ''}`;
+                
+                blockHeader.appendChild(blockTitle);
+                blockHeader.appendChild(blockInfo);
+                
+                const blockVars = document.createElement('div');
+                blockVars.className = 'block-vars';
+                
+                if (block.variables.length === 0) {
+                    const placeholder = document.createElement('div');
+                    placeholder.className = 'block-placeholder';
+                    placeholder.textContent = 'Añade variables a este bloque';
+                    blockVars.appendChild(placeholder);
+                } else {
+                    block.variables.forEach(variable => {
+                        const varBox = document.createElement('div');
+                        varBox.className = 'var-box';
+                        varBox.id = `block-${block.id}-var-${variable.name}`;
+                        
+                        const varName = document.createElement('div');
+                        varName.className = 'var-name';
+                        varName.textContent = variable.name;
+                        
+                        const varType = document.createElement('div');
+                        varType.className = 'var-type';
+                        varType.textContent = variable.type;
+                        
+                        const varValue = document.createElement('div');
+                        varValue.className = 'var-value value-empty';
+                        varValue.textContent = '--';
+                        varValue.id = `value-block-${block.id}-${variable.name}`;
+                        
+                        varBox.appendChild(varName);
+                        varBox.appendChild(varType);
+                        varBox.appendChild(varValue);
+                        
+                        blockVars.appendChild(varBox);
+                    });
+                }
+                
+                blockElement.appendChild(blockHeader);
+                blockElement.appendChild(blockVars);
+                blocksContainerElement.appendChild(blockElement);
+            });
+        }
+        
+        // Función para formatear números reales con decimales
+        function formatRealNumber(token) {
+            // Convertir a número
+            const num = parseFloat(token);
+            if (isNaN(num)) return null;
+            
+            // Si es entero, mostrar con un decimal
+            if (Number.isInteger(num)) {
+                return num + ".0";
+            }
+            
+            // Si ya tiene decimales, mantenerlos
+            return num.toString();
+        }
+
+	 const MIN_INT = -32768;
+	 const MAX_INT = 32767;
+
+	function truncateToInt16(value) {
+    	// Si el valor está dentro del rango, lo devolvemos sin cambios
+    	if (value >= MIN_INT && value <= MAX_INT) return value;
+    	// Aplicar truncamiento a 16 bits con signo
+    	return (value << 16) >> 16;
+	}
+        
+        // Función para validar números enteros
+        function isValidInteger(token) {
+            return /^-?\d+$/.test(token);
+        }
+        
+        // Función para validar números reales
+        function isValidReal(token) {
+            // Aceptar enteros, decimales y notación científica
+            return /^-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(token);
+        }
+        
+        // Función para procesar la entrada
+        function processInput() {
+            const inputText = inputDataElement.value;
+            const lines = inputText.split('\n');
+            
+            // Resetear todas las variables a '--'
+            blocks.forEach(block => {
+                block.variables.forEach(variable => {
+                    const valueElement = document.getElementById(`value-block-${block.id}-${variable.name}`);
+                    if (valueElement) {
+                        valueElement.textContent = '--';
+                        valueElement.className = 'var-value value-empty';
+                    }
+                });
+            });
+            
+            // Si no hay bloques con variables, no procesar
+            if (blocks.every(block => block.variables.length === 0)) {
+                showError('No hay variables definidas. Añade al menos una variable en algún bloque.');
+                return;
+            }
+            
+            // Procesar cada línea (cada línea = 1 bloque)
+            for (let blockIndex = 0; blockIndex < blocks.length; blockIndex++) {
+                const block = blocks[blockIndex];
+                if (block.variables.length === 0) continue;
+                
+                const line = lines[blockIndex] || '';
+                
+                let cursor = 0;
+                let errorOccurred = false;
+                
+                for (let varIndex = 0; varIndex < block.variables.length; varIndex++) {
+                    if (errorOccurred) {
+                        // Si hubo error, marcar las variables restantes como vacío
+                        const valueElement = document.getElementById(`value-block-${block.id}-${block.variables[varIndex].name}`);
+                        if (valueElement) {
+                            valueElement.textContent = '--';
+                            valueElement.className = 'var-value value-empty';
+                        }
+                        continue;
+                    }
+                    
+                    if (cursor >= line.length) {
+                        // No hay suficientes datos para esta variable
+                        const valueElement = document.getElementById(`value-block-${block.id}-${block.variables[varIndex].name}`);
+                        if (valueElement) {
+                            valueElement.textContent = '--';
+                            valueElement.className = 'var-value value-empty';
+                        }
+                        continue;
+                    }
+                    
+                    const variable = block.variables[varIndex];
+                    const valueElement = document.getElementById(`value-block-${block.id}-${variable.name}`);
+                    
+                    let token = '';
+                    
+                    switch (variable.type) {
+                        case 'integer':
+                            // Saltar espacios iniciales
+                            while (cursor < line.length && line[cursor] === ' ') cursor++;
+                            
+                            if (cursor >= line.length) {
+                                if (valueElement) {
+                                    valueElement.textContent = '--';
+                                    valueElement.className = 'var-value value-empty';
+                                }
+                                continue;
+                            }
+                            
+                            // Tomar token hasta el próximo espacio
+                            const startInt = cursor;
+                            while (cursor < line.length && line[cursor] !== ' ') cursor++;
+                            token = line.substring(startInt, cursor);
+                            
+                            if (valueElement) {
+                                if (isValidInteger(token)) {
+                                    const numValue = parseInt(token, 10);
+            			    const truncatedValue = truncateToInt16(numValue);
+            			    valueElement.textContent = truncatedValue;
+            			    valueElement.className = 'var-value value-correct';
+                                } else {
+                                    valueElement.textContent = 'ERROR';
+                                    valueElement.className = 'var-value value-error';
+                                    errorOccurred = true;
+                                }
+                            }
+                            break;
+                            
+                        case 'real':
+                            // Saltar espacios iniciales
+                            while (cursor < line.length && line[cursor] === ' ') cursor++;
+                            
+                            if (cursor >= line.length) {
+                                if (valueElement) {
+                                    valueElement.textContent = '--';
+                                    valueElement.className = 'var-value value-empty';
+                                }
+                                continue;
+                            }
+                            
+                            // Tomar token hasta el próximo espacio
+                            const startReal = cursor;
+                            while (cursor < line.length && line[cursor] !== ' ') cursor++;
+                            token = line.substring(startReal, cursor);
+                            
+                            if (valueElement) {
+                                if (isValidReal(token)) {
+                                    const formatted = formatRealNumber(token);
+                                    if (formatted === null) {
+                                        valueElement.textContent = 'ERROR';
+                                        valueElement.className = 'var-value value-error';
+                                        errorOccurred = true;
+                                    } else {
+                                        valueElement.textContent = formatted;
+                                        valueElement.className = 'var-value value-correct';
+                                    }
+                                } else {
+                                    valueElement.textContent = 'ERROR';
+                                    valueElement.className = 'var-value value-error';
+                                    errorOccurred = true;
+                                }
+                            }
+                            break;
+                            
+                        case 'char':
+                            // Tomar el siguiente carácter (incluyendo espacios)
+                            token = line[cursor];
+                            cursor++;
+                            
+                            if (valueElement) {
+                                // Para caracteres especiales, mostrar representación
+                                let displayChar = token;
+                                if (displayChar === ' ') {
+                                    displayChar = "' '";
+                                } else if (displayChar === '\t') {
+                                    displayChar = "'\\t'";
+                                } else if (displayChar === '\n') {
+                                    displayChar = "'\\n'";
+                                } else {
+                                    displayChar = `'${displayChar}'`;
+                                }
+                                
+                                valueElement.textContent = displayChar;
+                                valueElement.className = 'var-value value-correct';
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+        
+        // Event Listeners
+        addIntButton.addEventListener('click', () => addVariable('integer'));
+        addRealButton.addEventListener('click', () => addVariable('real'));
+        addCharButton.addEventListener('click', () => addVariable('char'));
+        addBlockButton.addEventListener('click', addReadlnBlock);
+        runButton.addEventListener('click', processInput);
+        
+        // Inicializar
+        updatePascalCode();
+        updateBlocksDisplay();
+    </script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador read en Pascal</title>
+    <style>
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-panel: #2d2d2d;
+            --bg-box: #3a3a3a;
+            --text-light: #e0e0e0;
+            --text-green: #6ecf68;
+            --text-red: #f75e5e;
+            --text-gray: #aaa;
+            --border-light: #444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow: hidden;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 20px;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .logo-container {
+            display: flex;
+            align-items: center;
+        }
+        
+        .logo {
+            width: 50px;
+            height: 50px;
+            background-color: var(--text-green);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            color: var(--bg-dark);
+            margin-right: 10px;
+            font-size: 24px;
+        }
+        
+        .author {
+            font-size: 0.8em;
+            color: var(--text-gray);
+        }
+        
+        .container {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            gap: 15px;
+            overflow: hidden;
+        }
+        
+        .top-container {
+            display: flex;
+            flex: 2;
+            gap: 15px;
+            overflow: hidden;
+        }
+        
+        .code-container {
+            flex: 1;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 15px;
+            overflow: auto;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .code-title {
+            font-weight: bold;
+            color: var(--text-green);
+            font-size: 1.1em;
+        }
+        
+        .add-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .btn {
+            padding: 5px 10px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-weight: bold;
+            background-color: var(--bg-box);
+            color: var(--text-light);
+            transition: all 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-integer {
+            background-color: #3a6ea5;
+        }
+        
+        .btn-real {
+            background-color: #6a3ea5;
+        }
+        
+        .btn-char {
+            background-color: #3ea56a;
+        }
+        
+        .code-area {
+            flex: 1;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            padding: 15px;
+            overflow: auto;
+            font-family: monospace;
+            white-space: pre;
+            font-size: 1.1em;
+            color: #f8f8f8;
+            line-height: 1.4;
+        }
+        
+        .visualization-container {
+            flex: 1;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .vis-header {
+            font-weight: bold;
+            color: var(--text-green);
+            margin-bottom: 10px;
+            font-size: 1.1em;
+        }
+        
+        .variables-display {
+            flex: 1;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-content: flex-start;
+            overflow-y: auto;
+            padding: 5px;
+        }
+        
+        .var-box {
+            width: 140px;
+            height: 110px;
+            background-color: var(--bg-box);
+            border-radius: 5px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        
+        .var-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        
+        .var-name {
+            font-weight: bold;
+            color: var(--text-green);
+            font-size: 1.2em;
+        }
+        
+        .var-type {
+            font-size: 0.9em;
+            color: var(--text-gray);
+            text-transform: uppercase;
+        }
+        
+        .var-value {
+            width: 100%;
+            height: 45px;
+            background-color: var(--bg-dark);
+            border-radius: 3px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-weight: bold;
+            font-size: 1.3em;
+        }
+        
+        .value-correct {
+            color: var(--text-green);
+            text-shadow: 0 0 5px rgba(110, 207, 104, 0.5);
+        }
+        
+        .value-error {
+            color: var(--text-red);
+            text-shadow: 0 0 5px rgba(247, 94, 94, 0.5);
+        }
+        
+        .value-empty {
+            color: #777;
+            font-style: italic;
+        }
+        
+        .bottom-container {
+            flex: 1;
+            background-color: var(--bg-panel);
+            border-radius: 5px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .input-field {
+            flex: 1;
+            padding: 12px;
+            background-color: var(--bg-dark);
+            border: 1px solid var(--border-light);
+            border-radius: 3px;
+            color: var(--text-light);
+            font-family: monospace;
+            font-size: 1.1em;
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.3);
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--text-green);
+        }
+        
+        .btn-run {
+            padding: 12px 25px;
+            background: linear-gradient(to bottom, var(--text-green), #5ebf58);
+            color: var(--bg-dark);
+            font-weight: bold;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: all 0.2s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+        }
+        
+        .btn-run:hover {
+            background: linear-gradient(to bottom, #7edf78, var(--text-green));
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.4);
+        }
+        
+        .btn-run:active {
+            transform: translateY(0);
+        }
+        
+        .var-counter {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: var(--text-gray);
+            text-align: center;
+        }
+        
+        .error-message {
+            color: var(--text-red);
+            margin-top: 10px;
+            font-size: 0.9em;
+            display: none;
+            text-align: center;
+            padding: 5px;
+            background-color: rgba(247, 94, 94, 0.1);
+            border-radius: 3px;
+        }
+        
+        .placeholder {
+            color: #777;
+            font-style: italic;
+            text-align: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>📘 Simulador <code>read</code> en Pascal</h1>
+        <div class="logo-container">
+            <div class="logo">O</div>
+            <div class="author">Oriol Borrás-Gené (URJC)</div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="top-container">
+            <!-- Columna de código -->
+            <div class="code-container">
+                <div class="code-header">
+                    <div class="code-title">Código Pascal</div>
+                    <div class="add-buttons">
+                        <button class="btn btn-integer" id="add-int">Integer</button>
+                        <button class="btn btn-real" id="add-real">Real</button>
+                        <button class="btn btn-char" id="add-char">Char</button>
+                    </div>
+                </div>
+                <div class="code-area" id="pascal-code">
+PROGRAM ejemploRead;
+VAR
+  // Añade variables usando los botones superiores
+BEGIN
+  read();
+END.
+                </div>
+                <div class="var-counter" id="var-counter">0 variables definidas (máximo 10)</div>
+                <div class="error-message" id="error-message"></div>
+            </div>
+            
+            <!-- Columna de visualización -->
+            <div class="visualization-container">
+                <div class="vis-header">Visualización de variables</div>
+                <div class="variables-display" id="variables-display">
+                    <div class="placeholder">Añade variables para ver su visualización</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Zona inferior -->
+        <div class="bottom-container">
+            <div class="input-container">
+                <input type="text" class="input-field" id="input-data" placeholder="Introduce los datos de entrada (ej: 12 3.5 X)">
+                <button class="btn-run" id="run-button">Ejecutar Simulación</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Variables globales
+        let variables = [];
+        let varCounter = 0;
+        
+        // Referencias a elementos DOM
+        const pascalCodeElement = document.getElementById('pascal-code');
+        const variablesDisplayElement = document.getElementById('variables-display');
+        const inputDataElement = document.getElementById('input-data');
+        const runButton = document.getElementById('run-button');
+        const addIntButton = document.getElementById('add-int');
+        const addRealButton = document.getElementById('add-real');
+        const addCharButton = document.getElementById('add-char');
+        const varCounterElement = document.getElementById('var-counter');
+        const errorMessageElement = document.getElementById('error-message');
+        
+        function showError(message) {
+            errorMessageElement.textContent = message;
+            errorMessageElement.style.display = 'block';
+            setTimeout(() => {
+                errorMessageElement.style.display = 'none';
+            }, 3000);
+        }
+        
+        function addVariable(type) {
+            if (variables.length >= 10) {
+                showError('Se ha alcanzado el máximo de 10 variables');
+                return;
+            }
+            
+            const name = String.fromCharCode(97 + varCounter);
+            variables.push({ name, type });
+            varCounter++;
+            
+            updatePascalCode();
+            updateVariablesDisplay();
+            updateVarCounter();
+        }
+        
+        function updatePascalCode() {
+            let varSection = 'VAR\n';
+            
+            variables.forEach(variable => {
+                varSection += `  ${variable.name}: ${variable.type};\n`;
+            });
+            
+            let readStatement = '  read(';
+            if (variables.length > 0) {
+                readStatement += variables.map(v => v.name).join(', ');
+            }
+            readStatement += ');';
+            
+            const code = `PROGRAM ejemploRead;\n${varSection}BEGIN\n${readStatement}\nEND.`;
+            pascalCodeElement.textContent = code;
+        }
+        
+        function updateVariablesDisplay() {
+            variablesDisplayElement.innerHTML = '';
+            
+            if (variables.length === 0) {
+                variablesDisplayElement.innerHTML = '<div class="placeholder">Añade variables para ver su visualización</div>';
+                return;
+            }
+            
+            variables.forEach(variable => {
+                const varBox = document.createElement('div');
+                varBox.className = 'var-box';
+                
+                const varName = document.createElement('div');
+                varName.className = 'var-name';
+                varName.textContent = variable.name;
+                
+                const varType = document.createElement('div');
+                varType.className = 'var-type';
+                varType.textContent = variable.type;
+                
+                const varValue = document.createElement('div');
+                varValue.className = 'var-value value-empty';
+                varValue.textContent = '--';
+                varValue.id = `value-${variable.name}`;
+                
+                varBox.appendChild(varName);
+                varBox.appendChild(varType);
+                varBox.appendChild(varValue);
+                
+                variablesDisplayElement.appendChild(varBox);
+            });
+        }
+        
+        function updateVarCounter() {
+            varCounterElement.textContent = `${variables.length} variable${variables.length !== 1 ? 's' : ''} definida${variables.length !== 1 ? 's' : ''} (máximo 10)`;
+        }
+        
+        function formatRealNumber(token) {
+            const num = parseFloat(token);
+            if (isNaN(num)) return null;
+            
+            if (Number.isInteger(num)) {
+                return num + ".0";
+            }
+            
+            return num.toString();
+        }
+  
+// NEW 28/06/2025      
+ // Constantes de rango para enteros de 16 bits
+    const MIN_INT = -32768;
+    const MAX_INT = 32767;
+
+    function truncateToInt16(value) {
+        // Si el valor está dentro del rango, lo devolvemos sin cambios
+        if (value >= MIN_INT && value <= MAX_INT) return value;
+        
+        // Aplicar truncamiento a 16 bits con signo
+        return (value << 16) >> 16;
+    }
+
+// NEW 28/06/2025      
+
+    function isValidInteger(token) {
+        // Aceptar cualquier entero sin validar rango
+        return /^-?\d+$/.test(token);
+    }
+         
+        function isValidReal(token) {
+            return /^-?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(token);
+        }
+        
+        function processInput() {
+            const inputText = inputDataElement.value;
+            
+            // Resetear todas las variables
+            variables.forEach(variable => {
+                const valueElement = document.getElementById(`value-${variable.name}`);
+                valueElement.textContent = '--';
+                valueElement.className = 'var-value value-empty';
+            });
+            
+            if (variables.length === 0) {
+                showError('No hay variables definidas. Añade al menos una variable.');
+                return;
+            }
+            
+            let cursor = 0;
+            let errorOccurred = false;
+            
+            for (let i = 0; i < variables.length; i++) {
+                if (errorOccurred) {
+                    const valueElement = document.getElementById(`value-${variables[i].name}`);
+                    valueElement.textContent = '--';
+                    valueElement.className = 'var-value value-empty';
+                    continue;
+                }
+                
+                if (cursor >= inputText.length) {
+                    const valueElement = document.getElementById(`value-${variables[i].name}`);
+                    valueElement.textContent = '--';
+                    valueElement.className = 'var-value value-empty';
+                    continue;
+                }
+                
+                const variable = variables[i];
+                const valueElement = document.getElementById(`value-${variable.name}`);
+                
+                let token = '';
+                
+                switch (variable.type) {
+                    case 'integer':
+                        // Saltar espacios iniciales
+                        while (cursor < inputText.length && inputText[cursor] === ' ') cursor++;
+                        
+                        if (cursor >= inputText.length) {
+                            valueElement.textContent = '--';
+                            valueElement.className = 'var-value value-empty';
+                            continue;
+                        }
+                        
+                        // Tomar token hasta el próximo espacio
+                        const startInt = cursor;
+                        while (cursor < inputText.length && inputText[cursor] !== ' ') cursor++;
+                        token = inputText.substring(startInt, cursor);
+                        
+      			if (isValidInteger(token)) {
+                		const numValue = parseInt(token, 10);
+                		const truncatedValue = truncateToInt16(numValue);
+                		valueElement.textContent = truncatedValue;
+                		valueElement.className = 'var-value value-correct';
+            		} else {
+                		valueElement.textContent = 'ERROR';
+                		valueElement.className = 'var-value value-error';
+                		errorOccurred = true;
+            		}
+            		break;
+                        
+                    case 'real':
+                        // Saltar espacios iniciales
+                        while (cursor < inputText.length && inputText[cursor] === ' ') cursor++;
+                        
+                        if (cursor >= inputText.length) {
+                            valueElement.textContent = '--';
+                            valueElement.className = 'var-value value-empty';
+                            continue;
+                        }
+                        
+                        // Tomar token hasta el próximo espacio
+                        const startReal = cursor;
+                        while (cursor < inputText.length && inputText[cursor] !== ' ') cursor++;
+                        token = inputText.substring(startReal, cursor);
+                        
+                        if (isValidReal(token)) {
+                            const formatted = formatRealNumber(token);
+                            if (formatted === null) {
+                                valueElement.textContent = 'ERROR';
+                                valueElement.className = 'var-value value-error';
+                                errorOccurred = true;
+                            } else {
+                                valueElement.textContent = formatted;
+                                valueElement.className = 'var-value value-correct';
+                            }
+                        } else {
+                            valueElement.textContent = 'ERROR';
+                            valueElement.className = 'var-value value-error';
+                            errorOccurred = true;
+                        }
+                        break;
+                        
+                    case 'char':
+                        // Tomar el siguiente carácter exactamente como está (incluyendo espacios)
+                        token = inputText[cursor];
+                        cursor++;
+                        
+                        // Mostrar caracteres especiales de forma legible
+                        let displayChar = token;
+                        if (displayChar === ' ') {
+                            displayChar = "' '";
+                        } else if (displayChar === '\t') {
+                            displayChar = "'\\t'";
+                        } else if (displayChar === '\n') {
+                            displayChar = "'\\n'";
+                        } else {
+                            displayChar = `'${displayChar}'`;
+                        }
+                        
+                        valueElement.textContent = displayChar;
+                        valueElement.className = 'var-value value-correct';
+                        break;
+                }
+            }
+        }
+        
+        // Event Listeners
+        addIntButton.addEventListener('click', () => addVariable('integer'));
+        addRealButton.addEventListener('click', () => addVariable('real'));
+        addCharButton.addEventListener('click', () => addVariable('char'));
+        runButton.addEventListener('click', processInput);
+        
+        inputDataElement.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') {
+                processInput();
+            }
+        });
+        
+        updateVarCounter();
+        
+       
+    </script>
+</body>
+</html>
